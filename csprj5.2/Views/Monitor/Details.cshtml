@@ -1,13 +1,12 @@
-@model csprj5._2.Models.MonitoredFile
+@model csprj5._2.ViewModels.MonitoredFileViewModel
 
 @{
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
+<h1>Monitor Details</h1>
 
 <div>
-    <h4>MonitoredFile</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -22,9 +21,16 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Location)
         </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DelayName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.DelayName)
+        </dd>
     </dl>
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Delete" asp-route-id="@Model.Id">Delete</a> |
     <a asp-action="Index">Back to List</a>
 </div>

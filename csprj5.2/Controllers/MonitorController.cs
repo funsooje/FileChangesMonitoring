@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using csprj5._2.Models;
+using csprj5._2.ViewModels;
 
 namespace csprj5._2.Controllers
 {
@@ -21,7 +22,7 @@ namespace csprj5._2.Controllers
         // GET: Monitor
         public async Task<IActionResult> Index()
         {
-            return View(await _context.MonitoredFiles.ToListAsync());
+            return View(await _context.MonitoredFiles.Include(x => x.Delay).ToListAsync());
         }
 
         // GET: Monitor/Details/5
@@ -33,18 +34,32 @@ namespace csprj5._2.Controllers
             }
 
             var monitoredFile = await _context.MonitoredFiles
+                .Include(x => x.Delay)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (monitoredFile == null)
             {
                 return NotFound();
             }
 
-            return View(monitoredFile);
+            var viewMF = new MonitoredFileViewModel
+            {
+                Name = monitoredFile.Name,
+                Location = monitoredFile.Location,
+                DelayId = monitoredFile.Delay.Id,
+                DelayName = monitoredFile.Delay.Name,
+                Id = monitoredFile.Id
+            };
+
+            return View(viewMF);
         }
 
         // GET: Monitor/Create
         public IActionResult Create()
         {
+            //var model = new MonitoredFile();
+            //model.MonitorFrequencies =  new SelectList(_context.MonitorFrequencies.ToList(), "Id", "Name").ToList();
+            var freqs = new SelectList(_context.MonitorFrequencies.ToList(), "Id", "Name").ToList();
+            ViewBag.MonitorFrequencies = freqs;
             return View();
         }
 
@@ -53,11 +68,21 @@ namespace csprj5._2.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Location")] MonitoredFile monitoredFile)
+        public async Task<IActionResult> Create(MonitoredFileViewModel monitoredFile)
         {
+            var delay = await _context.MonitorFrequencies.FindAsync(monitoredFile.DelayId);
+            if (delay == null)
+            {
+                return NotFound(); //very unlikely
+            }
+
             if (ModelState.IsValid)
             {
-                _context.Add(monitoredFile);
+                _context.Add(new MonitoredFile {
+                            Delay = delay,
+                            Location = monitoredFile.Location,
+                            Name = monitoredFile.Name
+                        });
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -72,12 +97,24 @@ namespace csprj5._2.Controllers
                 return NotFound();
             }
 
-            var monitoredFile = await _context.MonitoredFiles.FindAsync(id);
+            ;
+            var monitoredFile = await _context.MonitoredFiles.Include(x => x.Delay).FirstOrDefaultAsync(x => x.Id == id);
             if (monitoredFile == null)
             {
                 return NotFound();
             }
-            return View(monitoredFile);
+
+            var monitoredFileView = new MonitoredFileViewModel
+            {
+                Name = monitoredFile.Name,
+                Id = monitoredFile.Id,
+                DelayId = monitoredFile.Delay.Id,
+                Location = monitoredFile.Location
+            };
+
+            var freqs = new SelectList(_context.MonitorFrequencies.ToList(), "Id", "Name").ToList();
+            ViewBag.MonitorFrequencies = freqs;
+            return View(monitoredFileView);
         }
 
         // POST: Monitor/Edit/5
@@ -85,18 +122,33 @@ namespace csprj5._2.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Location")] MonitoredFile monitoredFile)
+        public async Task<IActionResult> Edit(int id, MonitoredFileViewModel monitoredFile)
         {
             if (id != monitoredFile.Id)
             {
                 return NotFound();
             }
 
+            var delay = await _context.MonitorFrequencies.FindAsync(monitoredFile.DelayId);
+            if (delay == null)
+            {
+                return NotFound(); //very unlikely
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(monitoredFile);
+                    var dbMF = await _context.MonitoredFiles.Include(x => x.Delay).FirstOrDefaultAsync(x => x.Id == monitoredFile.Id);
+                    if (dbMF == null)
+                    {
+                        return NotFound();
+                    }
+                    dbMF.Delay = delay;
+                    dbMF.Name = monitoredFile.Name;
+                    dbMF.Location = monitoredFile.Location;
+
+                    _context.Update(dbMF);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -124,13 +176,23 @@ namespace csprj5._2.Controllers
             }
 
             var monitoredFile = await _context.MonitoredFiles
+                .Include(x => x.Delay)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (monitoredFile == null)
             {
                 return NotFound();
             }
 
-            return View(monitoredFile);
+            var viewMF = new MonitoredFileViewModel
+            {
+                Name = monitoredFile.Name,
+                Location = monitoredFile.Location,
+                DelayId = monitoredFile.Delay.Id,
+                DelayName = monitoredFile.Delay.Name,
+                Id = monitoredFile.Id
+            };
+
+            return View(viewMF);
         }
 
         // POST: Monitor/Delete/5
@@ -138,6 +200,7 @@ namespace csprj5._2.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            // TODO: Check for other dependencies here before deleting
             var monitoredFile = await _context.MonitoredFiles.FindAsync(id);
             _context.MonitoredFiles.Remove(monitoredFile);
             await _context.SaveChangesAsync();
