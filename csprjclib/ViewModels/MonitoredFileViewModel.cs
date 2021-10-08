@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace csprj5._2.ViewModels
+namespace csprjclib.ViewModels
 {
     public class MonitoredFileViewModel
     {

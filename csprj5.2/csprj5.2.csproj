@@ -9,8 +9,6 @@
 
   <ItemGroup>
     <None Remove="Views\MF\" />
-    <None Remove="Views\Home\Monitor\" />
-    <None Remove="ViewModels\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="app.db" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
@@ -36,7 +34,10 @@
 
   <ItemGroup>
     <Folder Include="Views\MonitorFrequency\" />
-    <Folder Include="Views\Home\Monitor\" />
-    <Folder Include="ViewModels\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\csprjclib\csprjclib.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
   </ItemGroup>
 </Project>

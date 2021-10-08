@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using csprj5._2.Models;
-using csprj5._2.ViewModels;
+using csprjclib.ViewModels;
+using csprjclib.Models;
 
 namespace csprj5._2.Controllers
 {
