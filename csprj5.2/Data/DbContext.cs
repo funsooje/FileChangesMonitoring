@@ -16,4 +16,6 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
         public DbSet<MonitoredFile> MonitoredFiles { get; set; }
 
         public DbSet<MonitorFrequency> MonitorFrequencies { get; set; }
+
+        public DbSet<MonitoredFileHash> MonitoredFileHashes { get; set; }
     }
