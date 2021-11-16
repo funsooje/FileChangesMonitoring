@@ -10,8 +10,9 @@ namespace csprjclib.Models
 
         public MonitoredFile MonitoredFile { get; set; }
 
-        public byte[] Hash { get; set; }
+        public byte[] Content { get; set; }
 
         public DateTime ContentDate { get; set; }
+
     }
 }

@@ -74,5 +74,27 @@ namespace csprj5._2.Controllers
 
 
         }
+
+        //POST: Update file
+        [HttpPost]
+        public int UploadFile([FromBody]apiMonitoredFileContent model)
+        {
+            var mf = _context.MonitoredFiles.FirstOrDefault(x => x.Id == model.Id);
+            if (mf == null)
+            {
+                return 0; // error
+            }
+
+            //save file
+            _context.Add(new MonitoredFileContent
+            {
+                Content = model.Content,
+                ContentDate = DateTime.Now,
+                MonitoredFile = mf
+            });
+            _context.SaveChanges();
+            return 1;
+
+        }
     }
 }

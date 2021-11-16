@@ -21,5 +21,12 @@ namespace csprjclib.ViewModels
         [Display(Name = "Delay")]
         public string DelayName { get; set; }
 
+        public string Content { get; set; }
+
+        public DateTime ContentDate { get; set; }
+
+        public string Hash { get; set; }
+
+        public DateTime HashDate { get; set; }
     }
 }

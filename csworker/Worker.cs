@@ -134,7 +134,7 @@ namespace csworker
                     {
 
                         _logger.LogInformation("{time}: Task {taskID}: File: {path} - computing hash...", DateTimeOffset.Now,
-                        taskID, monitoredFile.Location);
+                        taskID, monitoredFile.Name);
 
                         var fileHash = HashFile(monitoredFile.Location);
                         var hashCheck = _api.HashCheck(new apiMonitoredFileHash
@@ -145,15 +145,16 @@ namespace csworker
 
                         if (hashCheck == 2)
                         {
+                            _logger.LogInformation("{time}: Task {taskID}: File: {path} - uploading content...", DateTimeOffset.Now,
+                                taskID, monitoredFile.Name);
                             // get file contents
+                            byte[] bytes = File.ReadAllBytes(monitoredFile.Location);
+                            _api.UploadFile(new apiMonitoredFileContent
+                            {
+                                Content = bytes,
+                                Id = monitoredFile.Id
+                            });
                         }
-
-                        _logger.LogInformation("{time}: Task {taskID}: File: {path} {oo}", DateTimeOffset.Now,
-                        taskID, monitoredFile.Location, hashCheck);
-
-                        // Get hash of file
-                        // Send hash to server
-                        // Server could ask for file content in return
 
                     }
                     else

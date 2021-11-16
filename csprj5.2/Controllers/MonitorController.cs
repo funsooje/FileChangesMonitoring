@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using csprj5._2.Models;
 using csprjclib.ViewModels;
 using csprjclib.Models;
+using System.IO;
+
 
 namespace csprj5._2.Controllers
 {
@@ -42,6 +44,9 @@ namespace csprj5._2.Controllers
                 return NotFound();
             }
 
+            var Hashd = _context.MonitoredFileHashes.OrderByDescending(x => x.HashDate).FirstOrDefault(x => x.MonitoredFile.Id == id);
+            var Content = _context.MonitoredFileContents.OrderByDescending(x => x.ContentDate).FirstOrDefault(x => x.MonitoredFile.Id == id);
+
             var viewMF = new MonitoredFileViewModel
             {
                 Name = monitoredFile.Name,
@@ -50,6 +55,25 @@ namespace csprj5._2.Controllers
                 DelayName = monitoredFile.Delay.Name,
                 Id = monitoredFile.Id
             };
+            if (Hashd != null)
+            {
+                viewMF.Hash = Hashd.Hash;
+                viewMF.HashDate = Hashd.HashDate;
+            }
+            if (Content != null)
+            {
+                byte[] text = Content.Content;
+                string full = "";
+                foreach(byte s in text)
+                {
+                    full = full + s; 
+                }
+                viewMF.Content = System.Text.Encoding.Default.GetString(text); //Convert.ToBase64String(Content.Content);
+                viewMF.ContentDate = Content.ContentDate;
+                var tt = System.Text.Encoding.Default.GetString(text);
+                //System.IO.File.WriteAllBytes("/tmp/test", text);
+                System.IO.File.WriteAllText("/tmp/test", tt);
+            }
 
             return View(viewMF);
         }
