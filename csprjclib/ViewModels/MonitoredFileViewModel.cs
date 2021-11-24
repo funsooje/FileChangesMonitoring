@@ -16,17 +16,23 @@ namespace csprjclib.ViewModels
         public string Location { get; set; }
 
         [Required(ErrorMessage = "Please select monitor delay")]
+        [Display(Name = "Delay")]
         public int DelayId { get; set; }
 
         [Display(Name = "Delay")]
         public string DelayName { get; set; }
 
+        [DataType(DataType.MultilineText)]
         public string Content { get; set; }
 
+        [Display(Name = "Content Date")]
         public DateTime ContentDate { get; set; }
 
         public string Hash { get; set; }
 
+        [Display(Name = "Hash Date")]
         public DateTime HashDate { get; set; }
+
+        public string Enabled { get; set; }
     }
 }

@@ -100,7 +100,7 @@ namespace csworker
                 }
 
                 // await Task.WhenAll(monitors.ToArray());
-                _logger.LogInformation("{time}: Worker: Added {n} entries, removed {m} entries", DateTimeOffset.Now, newCount, oldCount);
+                _logger.LogInformation("{time}: Worker: Added {n} entries, removed {m} entries, {p} current entries", DateTimeOffset.Now, newCount, oldCount, mfList.Count);
 
                 //_logger.LogInformation("{time}: Worker: Waiting to rety", DateTimeOffset.Now);
 
@@ -137,6 +137,7 @@ namespace csworker
                         taskID, monitoredFile.Name);
 
                         var fileHash = HashFile(monitoredFile.Location);
+                        //_logger.LogInformation(fileHash);
                         var hashCheck = _api.HashCheck(new apiMonitoredFileHash
                         {
                             Hash = fileHash,
@@ -177,7 +178,7 @@ namespace csworker
         {
             using (var hasher = HashAlgorithm.Create("SHA512"))
             {
-                using (var stream = File.OpenRead("/tmp/test.config"))
+                using (var stream = File.OpenRead(file))
                 {
                     var hash = hasher.ComputeHash(stream);
                     return BitConverter.ToString(hash).Replace("-", "");

@@ -16,5 +16,7 @@ namespace csprjclib.Models
         public string Location { get; set; }
 
         public MonitorFrequency Delay { get; set; }
+
+        public bool Enabled { get; set; }
     }
 }

@@ -27,6 +27,14 @@
                         asp-items="@(IEnumerable <SelectListItem>)ViewBag.MonitorFrequencies"></select>
                 <span asp-validation-for="DelayId" class="text-danger"></span>
             </div>
+            <div class="form-group">
+                <label asp-for="Enabled" class="control-label"></label>
+                <select asp-for="Enabled" class="form-control">
+                    <option>Yes</option>
+                    <option>No</option>
+                </select>
+                <span asp-validation-for="Enabled" class="text-danger"></span>
+            </div>
 
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />

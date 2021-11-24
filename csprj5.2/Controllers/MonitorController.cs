@@ -25,7 +25,21 @@ namespace csprj5._2.Controllers
         // GET: Monitor
         public async Task<IActionResult> Index()
         {
-            return View(await _context.MonitoredFiles.Include(x => x.Delay).ToListAsync());
+            List<MonitoredFileViewModel> viewModels = new List<MonitoredFileViewModel>();
+
+            var mFs = await _context.MonitoredFiles.Include(x => x.Delay).ToListAsync();
+            foreach (var item in mFs)
+            {
+                viewModels.Add(new MonitoredFileViewModel
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    DelayName = item.Delay.Name,
+                    Location = item.Location,
+                    Enabled = item.Enabled ? "Yes" : "No"
+                });
+            }
+            return View(viewModels);
         }
 
         // GET: Monitor/Details/5
@@ -53,7 +67,8 @@ namespace csprj5._2.Controllers
                 Location = monitoredFile.Location,
                 DelayId = monitoredFile.Delay.Id,
                 DelayName = monitoredFile.Delay.Name,
-                Id = monitoredFile.Id
+                Id = monitoredFile.Id,
+                Enabled = monitoredFile.Enabled ? "Yes" : "No"
             };
             if (Hashd != null)
             {
@@ -70,9 +85,8 @@ namespace csprj5._2.Controllers
                 }
                 viewMF.Content = System.Text.Encoding.Default.GetString(text); //Convert.ToBase64String(Content.Content);
                 viewMF.ContentDate = Content.ContentDate;
-                var tt = System.Text.Encoding.Default.GetString(text);
-                //System.IO.File.WriteAllBytes("/tmp/test", text);
-                System.IO.File.WriteAllText("/tmp/test", tt);
+                //var tt = System.Text.Encoding.Default.GetString(text);
+                //System.IO.File.WriteAllText("/tmp/test", tt);
             }
 
             return View(viewMF);
@@ -85,6 +99,7 @@ namespace csprj5._2.Controllers
             //model.MonitorFrequencies =  new SelectList(_context.MonitorFrequencies.ToList(), "Id", "Name").ToList();
             var freqs = new SelectList(_context.MonitorFrequencies.ToList(), "Id", "Name").ToList();
             ViewBag.MonitorFrequencies = freqs;
+
             return View();
         }
 
@@ -106,7 +121,8 @@ namespace csprj5._2.Controllers
                 _context.Add(new MonitoredFile {
                             Delay = delay,
                             Location = monitoredFile.Location,
-                            Name = monitoredFile.Name
+                            Name = monitoredFile.Name,
+                            Enabled = monitoredFile.Enabled == "Yes"
                         });
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -134,7 +150,8 @@ namespace csprj5._2.Controllers
                 Name = monitoredFile.Name,
                 Id = monitoredFile.Id,
                 DelayId = monitoredFile.Delay.Id,
-                Location = monitoredFile.Location
+                Location = monitoredFile.Location,
+                Enabled = monitoredFile.Enabled ? "Yes" : "No"
             };
 
             var freqs = new SelectList(_context.MonitorFrequencies.ToList(), "Id", "Name").ToList();
@@ -172,6 +189,7 @@ namespace csprj5._2.Controllers
                     dbMF.Delay = delay;
                     dbMF.Name = monitoredFile.Name;
                     dbMF.Location = monitoredFile.Location;
+                    dbMF.Enabled = monitoredFile.Enabled == "Yes";
 
                     _context.Update(dbMF);
                     await _context.SaveChangesAsync();
@@ -214,7 +232,8 @@ namespace csprj5._2.Controllers
                 Location = monitoredFile.Location,
                 DelayId = monitoredFile.Delay.Id,
                 DelayName = monitoredFile.Delay.Name,
-                Id = monitoredFile.Id
+                Id = monitoredFile.Id,
+                Enabled = monitoredFile.Enabled ? "Yes": "No"
             };
 
             return View(viewMF);

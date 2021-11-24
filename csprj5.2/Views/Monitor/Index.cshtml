@@ -1,4 +1,4 @@
-@model IEnumerable<csprjclib.Models.MonitoredFile>
+@model IEnumerable<csprjclib.ViewModels.MonitoredFileViewModel>
 
 @{
     ViewData["Title"] = "Index";
@@ -19,7 +19,10 @@
                 @Html.DisplayNameFor(model => model.Location)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Delay)
+                @Html.DisplayNameFor(model => model.DelayName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Enabled)
             </th>
             <th></th>
         </tr>
@@ -34,7 +37,10 @@
                 @Html.DisplayFor(modelItem => item.Location)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Delay.Name)
+                @Html.DisplayFor(modelItem => item.DelayName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Enabled)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

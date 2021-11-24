@@ -29,6 +29,16 @@ namespace csprj5._2.Controllers
                 .ToList();
         }
 
+        // GET: All active monitors
+        [HttpGet]
+        public List<MonitoredFile> GetActiveMonitors()
+        {
+            return _context.MonitoredFiles
+                .Where(x => x.Enabled)
+                .Include(x => x.Delay)
+                .ToList();
+        }
+
         // POST: Update Hash
         [HttpPost]
         public int HashCheck([FromBody]apiMonitoredFileHash hashed)

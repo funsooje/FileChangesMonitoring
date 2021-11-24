@@ -7,6 +7,7 @@ using csprjclib.Models;
 using System.Net.Http.Headers;
 using csprjclib.ApiModels;
 using System.Text;
+using System.Net;
 
 namespace csworker
 {
@@ -40,7 +41,19 @@ namespace csworker
 
         private HttpResponseMessage apiGet(string add)
         {
-            return _client.GetAsync(add).Result;
+            HttpResponseMessage resp = new HttpResponseMessage();
+
+            try
+            {
+                return _client.GetAsync(add).Result;
+            }
+            catch (Exception ex)
+            {
+                resp.StatusCode = HttpStatusCode.BadGateway;
+                resp.ReasonPhrase = ex.Message;
+            }
+
+            return resp;
         }
 
         private HttpResponseMessage apiPost(string add, object obj)
@@ -48,13 +61,22 @@ namespace csworker
             HttpContent sCon = new StringContent(JsonConvert.SerializeObject(obj), Encoding.UTF8, "application/json");
             //sCon.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-            HttpResponseMessage resp = _client.PostAsync(add, sCon).Result;
+            HttpResponseMessage resp = new HttpResponseMessage();
+            try
+            {
+                resp = _client.PostAsync(add, sCon).Result;
+            }
+            catch (Exception ex)
+            {
+                resp.StatusCode = HttpStatusCode.BadGateway;
+                resp.ReasonPhrase = ex.Message;
+            }
             return resp;
         }
 
         public List<MonitoredFile> GetMonitors()
         {
-            var resp = apiGet("GetAllMonitors");
+            var resp = apiGet("GetActiveMonitors");
 
             var monitoredFiles = new List<MonitoredFile>();
 
