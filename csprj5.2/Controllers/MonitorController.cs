@@ -36,7 +36,9 @@ namespace csprj5._2.Controllers
                     Name = item.Name,
                     DelayName = item.Delay.Name,
                     Location = item.Location,
-                    Enabled = item.Enabled ? "Yes" : "No"
+                    Enabled = item.Enabled ? "Yes" : "No",
+                    MonitorJustHash = item.MonitorJustHash ? "Yes" : "No",
+                    MonitorProperties = item.MonitorProperties ? "Yes" : "No"
                 });
             }
             return View(viewModels);
@@ -68,7 +70,9 @@ namespace csprj5._2.Controllers
                 DelayId = monitoredFile.Delay.Id,
                 DelayName = monitoredFile.Delay.Name,
                 Id = monitoredFile.Id,
-                Enabled = monitoredFile.Enabled ? "Yes" : "No"
+                Enabled = monitoredFile.Enabled ? "Yes" : "No",
+                MonitorJustHash = monitoredFile.MonitorJustHash ? "Yes" : "No",
+                MonitorProperties = monitoredFile.MonitorProperties ? "Yes" : "No"
             };
             if (Hashd != null)
             {
@@ -77,13 +81,8 @@ namespace csprj5._2.Controllers
             }
             if (Content != null)
             {
-                byte[] text = Content.Content;
-                string full = "";
-                foreach(byte s in text)
-                {
-                    full = full + s; 
-                }
-                viewMF.Content = System.Text.Encoding.Default.GetString(text); //Convert.ToBase64String(Content.Content);
+                //byte[] text = Content.Content;               
+                viewMF.Content = System.Text.Encoding.Default.GetString(Content.Content); //Convert.ToBase64String(Content.Content);
                 viewMF.ContentDate = Content.ContentDate;
                 //var tt = System.Text.Encoding.Default.GetString(text);
                 //System.IO.File.WriteAllText("/tmp/test", tt);
@@ -99,7 +98,6 @@ namespace csprj5._2.Controllers
             //model.MonitorFrequencies =  new SelectList(_context.MonitorFrequencies.ToList(), "Id", "Name").ToList();
             var freqs = new SelectList(_context.MonitorFrequencies.ToList(), "Id", "Name").ToList();
             ViewBag.MonitorFrequencies = freqs;
-
             return View();
         }
 
@@ -122,7 +120,9 @@ namespace csprj5._2.Controllers
                             Delay = delay,
                             Location = monitoredFile.Location,
                             Name = monitoredFile.Name,
-                            Enabled = monitoredFile.Enabled == "Yes"
+                            Enabled = monitoredFile.Enabled == "Yes",
+                            MonitorJustHash = monitoredFile.MonitorJustHash == "Yes",
+                            MonitorProperties = monitoredFile.MonitorProperties == "Yes"
                         });
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -151,7 +151,9 @@ namespace csprj5._2.Controllers
                 Id = monitoredFile.Id,
                 DelayId = monitoredFile.Delay.Id,
                 Location = monitoredFile.Location,
-                Enabled = monitoredFile.Enabled ? "Yes" : "No"
+                Enabled = monitoredFile.Enabled ? "Yes" : "No",
+                MonitorJustHash = monitoredFile.MonitorJustHash ? "Yes" : "No",
+                MonitorProperties = monitoredFile.MonitorProperties ? "Yes" : "No"
             };
 
             var freqs = new SelectList(_context.MonitorFrequencies.ToList(), "Id", "Name").ToList();
@@ -190,6 +192,8 @@ namespace csprj5._2.Controllers
                     dbMF.Name = monitoredFile.Name;
                     dbMF.Location = monitoredFile.Location;
                     dbMF.Enabled = monitoredFile.Enabled == "Yes";
+                    dbMF.MonitorJustHash = monitoredFile.MonitorJustHash == "Yes";
+                    dbMF.MonitorProperties = monitoredFile.MonitorProperties == "Yes";
 
                     _context.Update(dbMF);
                     await _context.SaveChangesAsync();
@@ -233,7 +237,9 @@ namespace csprj5._2.Controllers
                 DelayId = monitoredFile.Delay.Id,
                 DelayName = monitoredFile.Delay.Name,
                 Id = monitoredFile.Id,
-                Enabled = monitoredFile.Enabled ? "Yes": "No"
+                Enabled = monitoredFile.Enabled ? "Yes": "No",
+                MonitorJustHash = monitoredFile.MonitorJustHash ? "Yes" : "No",
+                MonitorProperties = monitoredFile.MonitorProperties ? "Yes" : "No"
             };
 
             return View(viewMF);
@@ -254,6 +260,78 @@ namespace csprj5._2.Controllers
         private bool MonitoredFileExists(int id)
         {
             return _context.MonitoredFiles.Any(e => e.Id == id);
+        }
+
+
+        // GET: Monitor/Edit/5
+        public async Task<IActionResult> History(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            ;
+            var monitoredFile = await _context.MonitoredFiles.Include(x => x.Delay).FirstOrDefaultAsync(x => x.Id == id);
+            if (monitoredFile == null)
+            {
+                return NotFound();
+            }
+
+            var monitoredFileView = new MonitoredFileViewModel
+            {
+                Name = monitoredFile.Name,
+                Id = monitoredFile.Id,
+                DelayId = monitoredFile.Delay.Id,
+                Location = monitoredFile.Location,
+                Enabled = monitoredFile.Enabled ? "Yes" : "No",
+                MonitorJustHash = monitoredFile.MonitorJustHash ? "Yes" : "No",
+                MonitorProperties = monitoredFile.MonitorProperties ? "Yes" : "No"
+            };
+
+            var hlist = new List<MonitoredFileHistory>();
+
+            var hashList = await _context.MonitoredFileHashes.Where(x => x.MonitoredFile.Id == id).ToListAsync();
+
+            for (int i = 0; i < hashList.Count; i++)
+            {
+                hlist.Add(new MonitoredFileHistory
+                {
+                    ChangeContent = (i == 0) ? "New File HASH Added" : "File HASH changed",
+                    ChangeDate = hashList[i].HashDate
+                });
+            }
+
+            var propList = await _context.MonitoredFileProperties.Where(x => x.MonitoredFile.Id == id).ToListAsync();
+
+            for (int i = 0; i < propList.Count; i++)
+            {
+                hlist.Add(new MonitoredFileHistory
+                {
+                    ChangeContent = propList[i].Property,
+                    ChangeDate = propList[i].HashDate
+                });
+            }
+
+            var contentList = await _context.MonitoredFileContents.Where(x => x.MonitoredFile.Id == id).ToListAsync();
+            for (int i = 1; i < contentList.Count; i++) // start at the second item
+            {
+                var linesA = System.Text.Encoding.Default.GetString(contentList[i - 1].Content);
+                var linesB = System.Text.Encoding.Default.GetString(contentList[i].Content);
+                hlist.Add(new MonitoredFileHistory
+                {
+                    ChangeContent = string.Concat(linesB.Except(linesA)),
+                    ChangeDate = contentList[i].ContentDate
+                });
+            }
+
+            if (hlist.Count > 0) {
+                monitoredFileView.History = hlist.OrderBy(x => x.ChangeDate).ToList();
+            }
+
+            //var freqs = new SelectList(_context.MonitorFrequencies.ToList(), "Id", "Name").ToList();
+            //ViewBag.MonitorFrequencies = freqs;
+            return View(monitoredFileView);
         }
     }
 }

@@ -88,17 +88,9 @@ namespace csworker
             return monitoredFiles;
         }
 
-        public int HashCheck(apiMonitoredFileHash model)
+        public int HashCheck(apiMonitoredFileContent model)
         {
             var resp = apiPost("HashCheck", model);
-            if (resp.IsSuccessStatusCode)
-                return JsonConvert.DeserializeObject<int>(resp.Content.ReadAsStringAsync().Result);
-            return 99; //resp error
-        }
-
-        public int UploadFile(apiMonitoredFileContent model)
-        {
-            var resp = apiPost("UploadFile", model);
             if (resp.IsSuccessStatusCode)
                 return JsonConvert.DeserializeObject<int>(resp.Content.ReadAsStringAsync().Result);
             return 99; //resp error

@@ -1,0 +1,43 @@
+﻿@model csprjclib.ViewModels.MonitoredFileViewModel
+
+@{
+    ViewData["Title"] = "History";
+}
+
+<h1>Monitor History</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Location)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Location)
+        </dd>
+    </dl>
+    @if (Model.History != null)
+    {
+        <dl class="row">
+            @foreach (var item in Model.History)
+            {
+                <dt class="col-sm-2">
+                    @Html.DisplayFor(historyItem => item.ChangeDate)
+                </dt>
+                <dd class="col-sm-10" style="background-color: #eee; border: 1px solid #999; display: block; padding: 20px;">
+                    <pre>@Html.DisplayFor(historyItem => item.ChangeContent)</pre>
+                </dd>
+            }
+        </dl>
+    }
+    else
+    {
+        <div>No available history for the selected dates.</div>
+    }
+ </div>

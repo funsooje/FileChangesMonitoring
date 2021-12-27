@@ -20,4 +20,6 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
         public DbSet<MonitoredFileHash> MonitoredFileHashes { get; set; }
 
         public DbSet<MonitoredFileContent> MonitoredFileContents { get; set; }
+
+        public DbSet<MonitoredFileProperty> MonitoredFileProperties { get; set; }
     }

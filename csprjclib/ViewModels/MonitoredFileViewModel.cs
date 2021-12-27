@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace csprjclib.ViewModels
@@ -34,5 +35,13 @@ namespace csprjclib.ViewModels
         public DateTime HashDate { get; set; }
 
         public string Enabled { get; set; }
+
+        [Display(Name = "Monitor File Properties")]
+        public string MonitorProperties { get; set; }
+
+        [Display(Name = "Monitor File Hash Only")]
+        public string MonitorJustHash { get; set; }
+
+        public List<MonitoredFileHistory> History { get; set; }
     }
 }

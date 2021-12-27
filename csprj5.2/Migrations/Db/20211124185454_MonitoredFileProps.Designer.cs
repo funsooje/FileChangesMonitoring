@@ -2,14 +2,16 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace csprj5._2.Migrations.Db
 {
     [DbContext(typeof(DbContext))]
-    partial class DbContextModelSnapshot : ModelSnapshot
+    [Migration("20211124185454_MonitoredFileProps")]
+    partial class MonitoredFileProps
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -110,31 +112,6 @@ namespace csprj5._2.Migrations.Db
                     b.ToTable("MonitoredFileHashes");
                 });
 
-            modelBuilder.Entity("csprjclib.Models.MonitoredFileProperty", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Hash")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("HashDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("MonitoredFileId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Property")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MonitoredFileId");
-
-                    b.ToTable("MonitoredFileProperties");
-                });
-
             modelBuilder.Entity("csprjclib.Models.MonitoredFile", b =>
                 {
                     b.HasOne("csprjclib.Models.MonitorFrequency", "Delay")
@@ -154,15 +131,6 @@ namespace csprj5._2.Migrations.Db
                 });
 
             modelBuilder.Entity("csprjclib.Models.MonitoredFileHash", b =>
-                {
-                    b.HasOne("csprjclib.Models.MonitoredFile", "MonitoredFile")
-                        .WithMany()
-                        .HasForeignKey("MonitoredFileId");
-
-                    b.Navigation("MonitoredFile");
-                });
-
-            modelBuilder.Entity("csprjclib.Models.MonitoredFileProperty", b =>
                 {
                     b.HasOne("csprjclib.Models.MonitoredFile", "MonitoredFile")
                         .WithMany()

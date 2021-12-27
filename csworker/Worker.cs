@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using csprjclib.ApiModels;
@@ -128,46 +129,67 @@ namespace csworker
 
                 if (monitoredFile != null)
                 {
+                    string fileProp = "";
+                    string filePropHash = "";
+                    string fileHash = "FILE_DOES_NOT_EXIST";
+                    byte[] fileBytes = Encoding.Default.GetBytes("FILE_DOES_NOT_EXIST");
 
+                    bool fileE = false;
                     // Check if file exists
                     if (File.Exists(monitoredFile.Location))
                     {
+                        fileE = true;
 
                         _logger.LogInformation("{time}: Task {taskID}: File: {path} - computing hash...", DateTimeOffset.Now,
                         taskID, monitoredFile.Name);
 
-                        var fileHash = HashFile(monitoredFile.Location);
-                        //_logger.LogInformation(fileHash);
-                        var hashCheck = _api.HashCheck(new apiMonitoredFileHash
-                        {
-                            Hash = fileHash,
-                            Id = monitoredFile.Id
-                        });
+                        fileHash = HashFile(monitoredFile.Location);
 
-                        if (hashCheck == 2)
+                        
+
+                        if (monitoredFile.MonitorProperties)
                         {
-                            _logger.LogInformation("{time}: Task {taskID}: File: {path} - uploading content...", DateTimeOffset.Now,
-                                taskID, monitoredFile.Name);
-                            // get file contents
-                            byte[] bytes = File.ReadAllBytes(monitoredFile.Location);
-                            _api.UploadFile(new apiMonitoredFileContent
-                            {
-                                Content = bytes,
-                                Id = monitoredFile.Id
-                            });
+                            var fileP = FileProps(monitoredFile.Location);
+                            filePropHash = fileP[0];
+                            fileProp = fileP[1];
                         }
 
                     }
                     else
                     {
-                        _logger.LogInformation("{time}: Task {taskID}: File: {path} does not exist", DateTimeOffset.Now,
+                        _logger.LogError("{time}: Task {taskID}: File: {path} does not exist", DateTimeOffset.Now,
                         taskID, monitoredFile.Location, monitoredFile.Delay.Name);
+                    }
+
+                    apiMonitoredFileContent model = new apiMonitoredFileContent
+                    {
+                        Hash = fileHash,
+                        Id = monitoredFile.Id,
+                        Properties = fileProp,
+                        PropertiesHash = filePropHash
+                    };
+
+                    var hashCheck = _api.HashCheck(model);
+
+                    if (hashCheck == 2)
+                    {
+                        _logger.LogInformation("{time}: Task {taskID}: File: {path} - uploading content...", DateTimeOffset.Now,
+                            taskID, monitoredFile.Name);
+                        // get file contents
+                        if (fileE)
+                        {
+                            fileBytes = File.ReadAllBytes(monitoredFile.Location);
+                        }
+                        
+                        model.Content = fileBytes;
+                        model.Param = "H+C";
+                        _api.HashCheck(model);
                     }
 
                     wait = monitoredFile.Delay.DelayInSecs;
                 }
 
-                _logger.LogInformation("{time}: Task {taskID}: Waiting {delay} seconds ...", DateTimeOffset.Now,
+                _logger.LogDebug("{time}: Task {taskID}: Waiting {delay} seconds ...", DateTimeOffset.Now,
                         taskID, wait);
 
                 await Task.Delay(wait * 1000, stoppingToken);
@@ -184,6 +206,28 @@ namespace csworker
                     return BitConverter.ToString(hash).Replace("-", "");
                 }
             }
+        }
+
+        private string[] FileProps(string file)
+        {
+            FileInfo oFileInfo = new FileInfo(file);
+            string cT = "Created: " + oFileInfo.CreationTime.ToString();
+            string uT = "Modified: " + oFileInfo.LastWriteTime.ToString();
+
+            string propFull = cT + "\n" + uT;
+
+            string propHash = "";
+            using (var hasher = HashAlgorithm.Create("SHA512"))
+            {
+                propHash = BitConverter.ToString(
+                    hasher.ComputeHash(
+                        Encoding.Default.GetBytes(propFull)
+                        )
+                    )
+                    .Replace("-", "");
+            }
+            string[] resp = { propHash, propFull };
+            return resp;
         }
     }
 }

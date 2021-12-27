@@ -37,6 +37,23 @@
                 <span asp-validation-for="Enabled" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="MonitorProperties" class="control-label"></label>
+                <select asp-for="MonitorProperties" class="form-control">
+                    <option>Yes</option>
+                    <option>No</option>
+                </select>
+                <span asp-validation-for="MonitorProperties" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MonitorJustHash" class="control-label"></label>
+                <select asp-for="MonitorJustHash" class="form-control">
+                    <option>Yes</option>
+                    <option>No</option>
+                </select>
+                <span asp-validation-for="MonitorJustHash" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>

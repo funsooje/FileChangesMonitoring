@@ -18,5 +18,9 @@ namespace csprjclib.Models
         public MonitorFrequency Delay { get; set; }
 
         public bool Enabled { get; set; }
+
+        public bool MonitorProperties { get; set; }
+
+        public bool MonitorJustHash { get; set; }
     }
 }

@@ -18,11 +18,17 @@
             <th>
                 @Html.DisplayNameFor(model => model.Location)
             </th>
-            <th>
+            <th style="text-align: center;">
                 @Html.DisplayNameFor(model => model.DelayName)
             </th>
-            <th>
+            <th style="text-align: center;">
                 @Html.DisplayNameFor(model => model.Enabled)
+            </th>
+            <th style="text-align: center;">
+                @Html.DisplayNameFor(model => model.MonitorProperties)
+            </th>
+            <th style="text-align: center;">
+                @Html.DisplayNameFor(model => model.MonitorJustHash)
             </th>
             <th></th>
         </tr>
@@ -36,11 +42,17 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Location)
             </td>
-            <td>
+            <td style="text-align: center;">
                 @Html.DisplayFor(modelItem => item.DelayName)
             </td>
-            <td>
+            <td style="text-align: center;">
                 @Html.DisplayFor(modelItem => item.Enabled)
+            </td>
+            <td style="text-align: center;">
+                @Html.DisplayFor(modelItem => item.MonitorProperties)
+            </td>
+            <td style="text-align: center;">
+                @Html.DisplayFor(modelItem => item.MonitorJustHash)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

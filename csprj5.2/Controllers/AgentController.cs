@@ -41,70 +41,109 @@ namespace csprj5._2.Controllers
 
         // POST: Update Hash
         [HttpPost]
-        public int HashCheck([FromBody]apiMonitoredFileHash hashed)
+        public int HashCheck([FromBody]apiMonitoredFileContent hashed)
         {
             var mf = _context.MonitoredFiles.FirstOrDefault(x => x.Id == hashed.Id);
             if (mf == null)
             {
                 return 0; // error
             }
-            var lastHash = _context.MonitoredFileHashes.Where(x => x.MonitoredFile.Id == mf.Id).OrderByDescending(x => x.HashDate).FirstOrDefault();
-            if (lastHash == null)
+            var cDate = DateTime.Now;
+
+            // Hash is always sent
+            // PropHash and PropContent is always sent if enabled
+            // Only Content is sent conditionally
+
+            if (hashed.Param == "H+C")
             {
+                // save Hash
                 _context.Add(new MonitoredFileHash
                 {
                     Hash = hashed.Hash,
-                    HashDate = DateTime.Now,
+                    HashDate = cDate,
+                    MonitoredFile = mf
+                });
+
+                //save file
+                _context.Add(new MonitoredFileContent
+                {
+                    Content = hashed.Content,
+                    ContentDate = cDate,
                     MonitoredFile = mf
                 });
                 _context.SaveChanges();
-                return 2; // provide file contents
             }
             else
             {
-                // compare hash
-                if (lastHash.Hash == hashed.Hash)
+                // Hash Check
+
+                var lastHash = _context.MonitoredFileHashes.Where(x => x.MonitoredFile.Id == mf.Id).OrderByDescending(x => x.HashDate).FirstOrDefault();
+
+                if (lastHash == null)
                 {
-                    // do nothing
-                    return 1;
+                    if (mf.MonitorJustHash)
+                    {
+                        _context.Add(new MonitoredFileHash
+                        {
+                            Hash = hashed.Hash,
+                            HashDate = cDate,
+                            MonitoredFile = mf
+                        });
+                        _context.SaveChanges();
+                    }
+                    else
+                    {
+                        return 2; // ask for contents
+                    }
                 }
                 else
                 {
-                    // create new hash entry
-                    _context.Add(new MonitoredFileHash
+                    // compare hash
+                    if (lastHash.Hash != hashed.Hash)
                     {
-                        Hash = hashed.Hash,
-                        HashDate = DateTime.Now,
-                        MonitoredFile = mf
-                    });
-                    _context.SaveChanges();
-                    return 2; // provide file contents
+                        if (!mf.MonitorJustHash)
+                        {
+                            return 2; // ask for contents and properties
+                        }
+                    }
                 }
             }
 
-
-        }
-
-        //POST: Update file
-        [HttpPost]
-        public int UploadFile([FromBody]apiMonitoredFileContent model)
-        {
-            var mf = _context.MonitoredFiles.FirstOrDefault(x => x.Id == model.Id);
-            if (mf == null)
+            // Property Hash Check
+            if (mf.MonitorProperties)
             {
-                return 0; // error
+                var lastPropHash = _context.MonitoredFileProperties.Where(x => x.MonitoredFile.Id == mf.Id).OrderByDescending(x => x.HashDate).FirstOrDefault();
+
+                if (lastPropHash == null)
+                {
+                    _context.Add(new MonitoredFileProperty
+                    {
+                        Hash = hashed.PropertiesHash,
+                        HashDate = cDate,
+                        MonitoredFile = mf,
+                        Property = hashed.Properties
+                    });
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    // compare hash
+                    if (lastPropHash.Hash != hashed.PropertiesHash)
+                    {
+                        _context.Add(new MonitoredFileProperty
+                        {
+                            Hash = hashed.PropertiesHash,
+                            HashDate = cDate,
+                            MonitoredFile = mf,
+                            Property = hashed.Properties
+                        });
+                        _context.SaveChanges();
+                    }
+                }
             }
 
-            //save file
-            _context.Add(new MonitoredFileContent
-            {
-                Content = model.Content,
-                ContentDate = DateTime.Now,
-                MonitoredFile = mf
-            });
-            _context.SaveChanges();
-            return 1;
-
+            return 1; // do nothing
         }
+
     }
 }
