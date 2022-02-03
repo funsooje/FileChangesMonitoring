@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csprj5.2", "csprj5.2\csprj5
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csprjclib", "csprjclib\csprjclib.csproj", "{31147B64-ADF4-4C2D-8789-7F6461F0CF82}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csprjagent", "csprjagent\csprjagent.csproj", "{03526DCD-9BF3-424E-93D0-7533E7A3B294}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csworker", "csworker\csworker.csproj", "{6C232DF9-F31C-4581-A1D6-7C5C2479A59B}"
 EndProject
 Global
